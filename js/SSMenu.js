@@ -60,6 +60,9 @@ class SSMenu {
         this.defaultTextElement.append(this.generatePulldownSVG());
         this.appendAll(this.selectedItemContainerElement, this.defaultTextElement, this.selectedItemElement);
         this.appendAll(this.rootElement, this.selectedItemContainerElement, this.selectMenuElement);
+        if (options.items) {
+            this.setItems(options.items);
+        }
     }
     /**
      *
