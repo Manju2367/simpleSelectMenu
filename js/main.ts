@@ -253,7 +253,94 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
      * @returns 
      */
     public addItems(items: Array<SSMItem>) {
-        
+        if(items.filter(i => i.isDefault).length > 1) {
+            throw new SSMenuOptionError("Default selected item is must be 1 item.")
+        }
+
+        // init
+        this.defaultTextElement.classList.remove("hidden")
+        this.selectedItemElement.classList.add("hidden")
+        this.selectMenuItemElements.forEach(menuItem => {
+            menuItem.classList.remove("selected")
+        })
+        this._selectedObject = null
+        this._selectedValue = null
+
+        // for each items
+        items.forEach(item => {
+            let menuItem = document.createElement("li")
+            menuItem.classList.add("SSM-select-list")
+            menuItem.dataset.value = item.value
+
+
+
+            // menu item icon
+            let menuItemIcon: HTMLImageElement|undefined
+            if(typeof item.iconUrl === "string") {
+                menuItemIcon = document.createElement("img")
+                menuItemIcon.src = item.iconUrl
+                menuItemIcon.alt = "○"
+                menuItemIcon.classList.add("SSM-menu-item-icon")
+
+                menuItem.append(menuItemIcon.cloneNode(true))
+            }
+
+
+
+            // menu item text
+            let menuItemText = document.createElement("p")
+            menuItemText.innerText = item.content
+            menuItemText.classList.add("SSM-menu-item-text")
+            if(typeof item.isDefault === "undefined") {
+                item.isDefault === SSMItemDefault.isDefault
+            }
+            if(item.isDefault) {
+                this._selectedObject = item
+                this._selectedValue = item.value
+                this.defaultTextElement.classList.add("hidden")
+                this.selectedItemElement.classList.remove("hidden")
+                this.removeAllChildren(this.selectedItemElement)
+                if(typeof menuItemIcon !== "undefined") {
+                    this.selectedItemElement.append(menuItemIcon.cloneNode(true))
+                }
+                this.selectedItemElement.append(menuItemText.cloneNode(true))
+                this.selectedItemElement.append(this.generatePulldownSVG())
+
+                menuItem.classList.add("selected")
+            }
+
+
+
+            // events
+            menuItem.addEventListener("click", (e) => {
+                // reseet selected
+                this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"))
+                let target = e.target
+                if(target instanceof HTMLLIElement) {
+                    this._selectedObject = item
+                    this._selectedValue = item.value
+                    target.classList.add("selected")
+                    this.removeAllChildren(this.selectedItemElement)
+
+                    for(let i = 0; i < target.children.length; i++) {
+                        let item = target.children.item(i)
+                        if(item !== null) {
+                            this.selectedItemElement.append(item.cloneNode(true))
+                        }
+                    }
+                    this.selectedItemElement.append(this.generatePulldownSVG())
+
+                    this.defaultTextElement.classList.add("hidden")
+                    this.selectedItemElement.classList.remove("hidden")
+                }
+            })
+
+
+
+            menuItem.append(menuItemText.cloneNode(true))
+            this.selectMenuItemElements.push(menuItem)
+            this.selectMenuElement.append(menuItem)
+        })
 
         return this
     }

@@ -26,7 +26,12 @@ window.addEventListener("DOMContentLoaded", () => {
         let setButton = document.getElementById("set");
         if (setButton !== null) {
             setButton.onclick = () => {
+                ssm.addItems([{
+                        content: "Inserted",
+                        value: "inserted value"
+                    }]);
                 console.log(ssm.selectedObject);
+                console.log(ssm.selectedValue);
             };
         }
     }
