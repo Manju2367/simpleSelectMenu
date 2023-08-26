@@ -51,11 +51,19 @@ class SSMenu {
         this.defaultTextElement.classList.add("SSM-default-text");
         this.selectedItemElement.classList.add("SSM-selected-item");
         this.selectMenuElement.classList.add("SSM-select-menu");
+        // tab index
+        this.selectedItemContainerElement.tabIndex = 0;
         // options
         this.defaultTextElement.innerText = options.defaultText;
         // events
-        this.rootElement.addEventListener("click", () => {
-            this.selectMenuElement.classList.toggle("active");
+        // this.rootElement.addEventListener("click", () => {
+        //     this.selectMenuElement.classList.toggle("active")
+        // })
+        this.selectedItemContainerElement.addEventListener("focus", () => {
+            this.selectMenuElement.classList.add("active");
+        });
+        this.selectedItemContainerElement.addEventListener("blur", () => {
+            this.selectMenuElement.classList.remove("active");
         });
         this.defaultTextElement.append(this.generatePulldownSVG());
         this.appendAll(this.selectedItemContainerElement, this.defaultTextElement, this.selectedItemElement);
@@ -155,7 +163,8 @@ class SSMenu {
                 menuItem.classList.add("selected");
             }
             // events
-            menuItem.addEventListener("click", (e) => {
+            menuItem.addEventListener("mousedown", (e) => {
+                this.selectedItemContainerElement.focus();
                 // reseet selected
                 this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"));
                 let target = e.target;
@@ -174,6 +183,7 @@ class SSMenu {
                     this.defaultTextElement.classList.add("hidden");
                     this.selectedItemElement.classList.remove("hidden");
                 }
+                this.selectedItemContainerElement.blur();
             });
             menuItem.append(menuItemText.cloneNode(true));
             this.selectMenuItemElements.push(menuItem);
@@ -233,7 +243,7 @@ class SSMenu {
                 menuItem.classList.add("selected");
             }
             // events
-            menuItem.addEventListener("click", (e) => {
+            menuItem.addEventListener("mousedown", (e) => {
                 // reseet selected
                 this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"));
                 let target = e.target;

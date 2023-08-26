@@ -85,14 +85,26 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
 
 
+        // tab index
+        this.selectedItemContainerElement.tabIndex = 0
+
+
+
         // options
         this.defaultTextElement.innerText = options.defaultText
 
 
 
         // events
-        this.rootElement.addEventListener("click", () => {
-            this.selectMenuElement.classList.toggle("active")
+        // this.rootElement.addEventListener("click", () => {
+        //     this.selectMenuElement.classList.toggle("active")
+        // })
+
+        this.selectedItemContainerElement.addEventListener("focus", () => {
+            this.selectMenuElement.classList.add("active")
+        })
+        this.selectedItemContainerElement.addEventListener("blur", () => {
+            this.selectMenuElement.classList.remove("active")
         })
 
 
@@ -219,7 +231,9 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
 
             // events
-            menuItem.addEventListener("click", (e) => {
+            menuItem.addEventListener("mousedown", (e) => {
+                this.selectedItemContainerElement.focus()
+
                 // reseet selected
                 this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"))
                 let target = e.target
@@ -240,6 +254,8 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
                     this.defaultTextElement.classList.add("hidden")
                     this.selectedItemElement.classList.remove("hidden")
                 }
+
+                this.selectedItemContainerElement.blur()
             })
 
 
@@ -317,7 +333,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
 
             // events
-            menuItem.addEventListener("click", (e) => {
+            menuItem.addEventListener("mousedown", (e) => {
                 // reseet selected
                 this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"))
                 let target = e.target
