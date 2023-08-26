@@ -17,6 +17,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const ssm = new SSMenu(menuContainer, {
         defaultText: "選択してください。",
+        iconBackground: "black",
         items: [
             {
                 content: "フィッシュル",
@@ -26,7 +27,8 @@ window.addEventListener("DOMContentLoaded", () => {
             {
                 content: "リネット",
                 value: "Linette",
-                iconUrl: "https://enka.network/ui/UI_AvatarIcon_Linette.png"
+                iconUrl: "https://enka.network/ui/UI_AvatarIcon_Linette.png",
+                iconBackground: "green"
             },
             {
                 content: "旅人",
@@ -38,20 +40,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 
-    const setButton = document.getElementById("set")
-    nonNullable(setButton)
+    const addItemButton = document.getElementById("add-item")
+    nonNullable(addItemButton)
 
-    setButton.onclick = () => {
-        console.log(ssm.selectedObject)
-        console.log(ssm.selectedValue)
+    addItemButton.onclick = () => {
+        ssm.addItems([
+            {
+                content: "エウルア",
+                value: "Eula",
+                iconUrl: "https://enka.network/ui/UI_AvatarIcon_Eula.png"
+            }
+        ])
     }
 
-
-
-    const selectMenu = document.getElementsByClassName("SSM-selected-item-container")[0]
-    nonNullable(selectMenu)
-    isDivElement(selectMenu)
-
-
+    const printSelectedItemButton = document.getElementById("print-selected-item")
+    const selectedItemOut = document.getElementById("selected-item-out")
+    nonNullable(printSelectedItemButton)
+    nonNullable(selectedItemOut)
+    
+    printSelectedItemButton.onclick = () => {
+        selectedItemOut.innerText = ssm.selectedValue ?? "未選択"
+    }
 
 })

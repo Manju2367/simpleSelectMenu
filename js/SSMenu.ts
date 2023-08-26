@@ -1,33 +1,38 @@
 // interfaces
-interface SSMItem {
-    iconUrl?: string
+interface SSMenuItem {
     value: string
     content: string
-    isDefault?: boolean
+    iconUrl?: string|undefined
+    iconBackground?: string|undefined|null
+    isDefault?: boolean|undefined
 }
 
 interface SSM<T extends HTMLElement> {
-    setItems: (items: Array<SSMItem>) => this
-    addItems: (items: Array<SSMItem>) => this
+    setItems: (items: Array<SSMenuItem>) => this
+    addItems: (items: Array<SSMenuItem>) => this
 }
 
-interface SSMOptions {
+interface SSMenuOptions {
     defaultText: string,
-    items?: Array<SSMItem>
+    iconBackground?: string
+    items?: Array<SSMenuItem>
 }
 
 
 
 // options default
-const SSMItemDefault: SSMItem = {
-    iconUrl: "",
+const SSMenuItemDefault: SSMenuItem = {
     value: "",
     content: "",
-    isDefault: false
+    iconUrl: "",
+    iconBackground: "transparent",
+    isDefault: false,
 }
 
-const SSMOptionsDefault: SSMOptions = {
-    defaultText: "-"
+const SSMenuOptionsDefault: SSMenuOptions = {
+    defaultText: "-",
+    iconBackground: "transparent",
+    items: [],
 }
 
 
@@ -48,8 +53,11 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
     private selectedItemElement: HTMLParagraphElement
     private selectMenuElement: HTMLUListElement
     private selectMenuItemElements: Array<HTMLLIElement>
-    private _selectedObject: SSMItem|null
+    private _selectedObject: SSMenuItem|null
     private _selectedValue: string|null
+    private _iconBackground: string|undefined
+
+
 
     /**
      * 
@@ -57,7 +65,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
      * @param elem 
      * @param options 
      */
-    constructor(elem: T, options?: Partial<SSMOptions>) {
+    constructor(elem: T, options?: Partial<SSMenuOptions>) {
         // init field
         this.rootElement = elem
         this.selectedItemContainerElement = document.createElement("div")
@@ -71,8 +79,10 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
 
         // init options
-        options ??= SSMOptionsDefault
-        options.defaultText ??= SSMOptionsDefault.defaultText
+        options ??= SSMenuOptionsDefault
+        options.defaultText ??= SSMenuOptionsDefault.defaultText
+        options.iconBackground ??= SSMenuOptionsDefault.iconBackground
+        this._iconBackground = options.iconBackground
 
 
 
@@ -95,11 +105,6 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
 
 
-        // events
-        // this.rootElement.addEventListener("click", () => {
-        //     this.selectMenuElement.classList.toggle("active")
-        // })
-
         this.selectedItemContainerElement.addEventListener("focus", () => {
             this.selectMenuElement.classList.add("active")
         })
@@ -119,6 +124,10 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
     }
 
 
+
+
+
+    // private methods
 
     /**
      * 
@@ -166,26 +175,11 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
         }
     }
 
-
-
     /**
      * 
      * @param items 
-     * @returns 
      */
-    public setItems(items: Array<SSMItem>) {
-        if(items.filter(i => i.isDefault).length > 1) {
-            throw new SSMenuOptionError("Default selected item is must be 1 item.")
-        }
-
-        // init
-        this.defaultTextElement.classList.remove("hidden")
-        this.selectedItemElement.classList.add("hidden")
-        this.removeAllChildren(this.selectedItemElement)
-        this.selectMenuItemElements = []
-        this.removeAllChildren(this.selectMenuElement)
-
-        // for each items
+    private initItems(items: Array<SSMenuItem>) {
         items.forEach(item => {
             let menuItem = document.createElement("li")
             menuItem.classList.add("SSM-select-list")
@@ -200,6 +194,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
                 menuItemIcon.src = item.iconUrl
                 menuItemIcon.alt = "○"
                 menuItemIcon.classList.add("SSM-menu-item-icon")
+                menuItemIcon.style.background = item.iconBackground ?? this._iconBackground ?? ""
 
                 menuItem.append(menuItemIcon.cloneNode(true))
             }
@@ -211,7 +206,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
             menuItemText.innerText = item.content
             menuItemText.classList.add("SSM-menu-item-text")
             if(typeof item.isDefault === "undefined") {
-                item.isDefault === SSMItemDefault.isDefault
+                item.isDefault === SSMenuItemDefault.isDefault
             }
             if(item.isDefault) {
                 this._selectedObject = item
@@ -232,8 +227,6 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
             // events
             menuItem.addEventListener("mousedown", (e) => {
-                this.selectedItemContainerElement.focus()
-
                 // reseet selected
                 this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"))
                 let target = e.target
@@ -254,8 +247,6 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
                     this.defaultTextElement.classList.add("hidden")
                     this.selectedItemElement.classList.remove("hidden")
                 }
-
-                this.selectedItemContainerElement.blur()
             })
 
 
@@ -264,6 +255,32 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
             this.selectMenuItemElements.push(menuItem)
             this.selectMenuElement.append(menuItem)
         })
+    }
+
+
+
+
+
+    // public methods
+
+    /**
+     * 
+     * @param items 
+     * @returns 
+     */
+    public setItems(items: Array<SSMenuItem>) {
+        if(items.filter(i => i.isDefault).length > 1) {
+            throw new SSMenuOptionError("Default selected item is must be 1 item.")
+        }
+
+        // init
+        this.defaultTextElement.classList.remove("hidden")
+        this.selectedItemElement.classList.add("hidden")
+        this.removeAllChildren(this.selectedItemElement)
+        this.selectMenuItemElements = []
+        this.removeAllChildren(this.selectMenuElement)
+
+        this.initItems(items)
 
         return this
     }
@@ -273,7 +290,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
      * @param items 
      * @returns 
      */
-    public addItems(items: Array<SSMItem>) {
+    public addItems(items: Array<SSMenuItem>) {
         if(items.filter(i => i.isDefault).length > 1) {
             throw new SSMenuOptionError("Default selected item is must be 1 item.")
         }
@@ -287,84 +304,22 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
         this._selectedObject = null
         this._selectedValue = null
 
-        // for each items
-        items.forEach(item => {
-            let menuItem = document.createElement("li")
-            menuItem.classList.add("SSM-select-list")
-            menuItem.dataset.value = item.value
-
-
-
-            // menu item icon
-            let menuItemIcon: HTMLImageElement|undefined
-            if(typeof item.iconUrl === "string") {
-                menuItemIcon = document.createElement("img")
-                menuItemIcon.src = item.iconUrl
-                menuItemIcon.alt = "○"
-                menuItemIcon.classList.add("SSM-menu-item-icon")
-
-                menuItem.append(menuItemIcon.cloneNode(true))
-            }
-
-
-
-            // menu item text
-            let menuItemText = document.createElement("p")
-            menuItemText.innerText = item.content
-            menuItemText.classList.add("SSM-menu-item-text")
-            if(typeof item.isDefault === "undefined") {
-                item.isDefault === SSMItemDefault.isDefault
-            }
-            if(item.isDefault) {
-                this._selectedObject = item
-                this._selectedValue = item.value
-                this.defaultTextElement.classList.add("hidden")
-                this.selectedItemElement.classList.remove("hidden")
-                this.removeAllChildren(this.selectedItemElement)
-                if(typeof menuItemIcon !== "undefined") {
-                    this.selectedItemElement.append(menuItemIcon.cloneNode(true))
-                }
-                this.selectedItemElement.append(menuItemText.cloneNode(true))
-                this.selectedItemElement.append(this.generatePulldownSVG())
-
-                menuItem.classList.add("selected")
-            }
-
-
-
-            // events
-            menuItem.addEventListener("mousedown", (e) => {
-                // reseet selected
-                this.selectMenuItemElements.forEach(menu => menu.classList.remove("selected"))
-                let target = e.target
-                if(target instanceof HTMLLIElement) {
-                    this._selectedObject = item
-                    this._selectedValue = item.value
-                    target.classList.add("selected")
-                    this.removeAllChildren(this.selectedItemElement)
-
-                    for(let i = 0; i < target.children.length; i++) {
-                        let item = target.children.item(i)
-                        if(item !== null) {
-                            this.selectedItemElement.append(item.cloneNode(true))
-                        }
-                    }
-                    this.selectedItemElement.append(this.generatePulldownSVG())
-
-                    this.defaultTextElement.classList.add("hidden")
-                    this.selectedItemElement.classList.remove("hidden")
-                }
-            })
-
-
-
-            menuItem.append(menuItemText.cloneNode(true))
-            this.selectMenuItemElements.push(menuItem)
-            this.selectMenuElement.append(menuItem)
-        })
+        this.initItems(items)
 
         return this
     }
+
+    public setIconBackground(iconBackground: string): SSMenu<T> {
+        this._iconBackground = iconBackground
+
+        return this
+    }
+
+
+
+
+
+    // getter
 
     /**
      * 
