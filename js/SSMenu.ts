@@ -105,6 +105,14 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
 
 
 
+        // events
+        this.selectedItemContainerElement.addEventListener("mousedown", (e) => {
+            if(this.selectMenuElement.classList.contains("active")) {
+                this.selectedItemContainerElement.blur()
+                e.stopImmediatePropagation()
+                e.preventDefault()
+            }
+        })
         this.selectedItemContainerElement.addEventListener("focus", () => {
             this.selectMenuElement.classList.add("active")
         })

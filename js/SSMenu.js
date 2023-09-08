@@ -61,10 +61,12 @@ class SSMenu {
         this.selectedItemContainerElement.tabIndex = 0;
         // options
         this.defaultTextElement.innerText = options.defaultText;
-        this.selectedItemContainerElement.addEventListener("mousedown", () => {
+        // events
+        this.selectedItemContainerElement.addEventListener("mousedown", (e) => {
             if (this.selectMenuElement.classList.contains("active")) {
                 this.selectedItemContainerElement.blur();
-                return false;
+                e.stopImmediatePropagation();
+                e.preventDefault();
             }
         });
         this.selectedItemContainerElement.addEventListener("focus", () => {
