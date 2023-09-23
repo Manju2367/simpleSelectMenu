@@ -45,6 +45,15 @@
   transition: all 0.2s;
   z-index: 0;
 }
+.SSM-root-container div.SSM-selected-item-container svg.SSM-pulldown-icon {
+  width: 10px;
+  margin: 0 5px;
+  transition: all 0.2s;
+  transform: rotate(180deg);
+}
+.SSM-root-container div.SSM-selected-item-container svg.SSM-pulldown-icon.active {
+  transform: rotate(0deg);
+}
 .SSM-root-container div.SSM-selected-item-container p.SSM-default-text:not(.hidden), .SSM-root-container div.SSM-selected-item-container p.SSM-selected-item:not(.hidden) {
   display: flex;
   align-items: center;

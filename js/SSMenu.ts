@@ -50,6 +50,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
     private rootElement
     private selectedItemContainerElement: HTMLDivElement
     private defaultTextElement: HTMLParagraphElement
+    private pulldownIconElement: SVGSVGElement
     private selectedItemElement: HTMLParagraphElement
     private selectMenuElement: HTMLUListElement
     private selectMenuItemElements: Array<HTMLLIElement>
@@ -114,15 +115,18 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
             }
         })
         this.selectedItemContainerElement.addEventListener("focus", () => {
+            this.pulldownIconElement.classList.add("active")
             this.selectMenuElement.classList.add("active")
         })
         this.selectedItemContainerElement.addEventListener("blur", () => {
+            this.pulldownIconElement.classList.remove("active")
             this.selectMenuElement.classList.remove("active")
         })
 
 
 
-        this.defaultTextElement.append(this.generatePulldownSVG())
+        this.pulldownIconElement = this.generatePulldownSVG()
+        this.defaultTextElement.append(this.pulldownIconElement)
         this.appendAll(this.selectedItemContainerElement, this.defaultTextElement, this.selectedItemElement)
         this.appendAll(this.rootElement, this.selectedItemContainerElement, this.selectMenuElement)
     
@@ -166,11 +170,11 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
      */
     private generatePulldownSVG(): SVGSVGElement {
         let pulldownSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg")
-        pulldownSVG.setAttribute("viewBox", "0 0 32 40")
+        pulldownSVG.setAttribute("viewBox", "0 0 100 100")
         pulldownSVG.setAttribute("x", "0")
         pulldownSVG.setAttribute("y", "0")
         pulldownSVG.innerHTML = `
-            <path fill=""#000 d="M22.92,13.62A1,1,0,0,0,22,13H10a1,1,0,0,0-.92.62,1,1,0,0,0,.21,1.09l6,6a1,1,0,0,0,1.42,0l6-6A1,1,0,0,0,22.92,13.62Z"></path>
+            <path fill=""#000 d="M96.2,77.7L58.5,12.5c-3.8-6.5-13.2-6.5-17,0L3.8,77.7c-3.8,6.5,0.9,14.7,8.5,14.7h75.4C95.2,92.4,99.9,84.3,96.2,77.7z"></path>
         `
         pulldownSVG.classList.add("SSM-pulldown-icon")
         
@@ -226,7 +230,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
                     this.selectedItemElement.append(menuItemIcon.cloneNode(true))
                 }
                 this.selectedItemElement.append(menuItemText.cloneNode(true))
-                this.selectedItemElement.append(this.generatePulldownSVG())
+                this.selectedItemElement.append(this.pulldownIconElement)
 
                 menuItem.classList.add("selected")
             }
@@ -250,7 +254,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
                             this.selectedItemElement.append(item.cloneNode(true))
                         }
                     }
-                    this.selectedItemElement.append(this.generatePulldownSVG())
+                    this.selectedItemElement.append(this.pulldownIconElement)
 
                     this.defaultTextElement.classList.add("hidden")
                     this.selectedItemElement.classList.remove("hidden")
@@ -304,6 +308,7 @@ class SSMenu<T extends HTMLElement> implements SSM<T> {
         }
 
         // init
+        this.defaultTextElement.append(this.pulldownIconElement)
         this.defaultTextElement.classList.remove("hidden")
         this.selectedItemElement.classList.add("hidden")
         this.selectMenuItemElements.forEach(menuItem => {
